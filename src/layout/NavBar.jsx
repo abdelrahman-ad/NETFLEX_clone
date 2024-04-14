@@ -1,11 +1,18 @@
-import {Avatar, Box,Container,Flex, Menu, MenuButton, MenuItem, MenuList} from "@chakra-ui/react"
+import {  useDisclosure,Avatar, Box,Container,Drawer,DrawerBody,DrawerContent,DrawerHeader,Flex,
+  IconButton, Menu, MenuButton, MenuItem, MenuList,
+  DrawerOverlay,
+  DrawerCloseButton,
+  Button} from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/authProvider"
-import { Search2Icon } from "@chakra-ui/icons";
+import { HamburgerIcon, Search2Icon, SearchIcon } from "@chakra-ui/icons";
 
 const NavBar =()=>{
-     const {user,isLoading ,sinInGoogle,logOut}=useAuth();
-    
+     const {user ,sinInGoogle,logOut}=useAuth();
+  
+     const { onOpen, isOpen, onClose } = useDisclosure();
+   
+     
      const handlerLogin = async () =>{
       try {
          await sinInGoogle();
@@ -24,7 +31,8 @@ const NavBar =()=>{
                     NETFLEX
                 </Box>
               </Link>
-              <Flex  gap={4}>
+              {/* DESCTOP */}
+              <Flex  gap={4} alignItems={'center'} display={{base :'none' , md: "flex"}} >
                 <Link to="/" > Home</Link>
                 <Link to="/movies" > Movies</Link>
                 <Link to="/shows" > TV Shows</Link>
@@ -46,6 +54,60 @@ const NavBar =()=>{
                 ( <Avatar size={'sm'}  bg={'gray.800'} as='button' onClick={handlerLogin} />)
                 }
               </Flex>
+              {/* Mobile */}
+          <Flex
+            display={{ base: "flex", md: "none" }}
+            alignItems={"center"}
+            gap="4"
+          >
+            <Link to="/search">
+              <SearchIcon fontSize={"xl"} />
+            </Link>
+            <IconButton onClick={onOpen} icon={<HamburgerIcon />} />
+            <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+              <DrawerOverlay />
+              <DrawerContent bg={"black"}>
+                <DrawerCloseButton />
+                <DrawerHeader>
+                  {user ? (
+                    <Flex alignItems="center" gap="2">
+                      <Avatar bg="red.500" size={"sm"} name={user?.email} />
+                      <Box fontSize={"sm"}>
+                        {user?.displayName || user?.email}
+                      </Box>
+                    </Flex>
+                  ) : (
+                    <Avatar
+                      size={"sm"}
+                      bg="gray.800"
+                      as="button"
+                      onClick={handlerLogin}
+                    />
+                  )}
+                </DrawerHeader>
+
+                <DrawerBody>
+                  <Flex flexDirection={"column"} gap={"4"} onClick={onClose}>
+                    <Link to="/">Home</Link>
+                    <Link to="/movies">Movies</Link>
+                    <Link to="/shows">TV Shows</Link>
+                    {user && (
+                      <>
+                        <Link to="/watchlist">Watchlist</Link>
+                        <Button
+                          variant={"outline"}
+                          colorScheme="red"
+                          onClick={logOut}
+                        >
+                          Logout
+                        </Button>
+                      </>
+                    )}
+                  </Flex>
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
+          </Flex>
              </Flex>
             </Container>
         </Box>
